@@ -76,7 +76,7 @@ void print(const double * T, int n, ostream &fout){
 }
 
 double * select(double *T, int n, int m, int &nm){
-    nm = days_in_month[m - 1] * 12;
+    nm = days_in_month[m - 1] * 24;
     int skip = 0;
     for(int i=0; i<m - 1; i++){
         skip += days_in_month[i]; // кол-во дней, которые пропускаем
