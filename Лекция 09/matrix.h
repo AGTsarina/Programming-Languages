@@ -12,6 +12,9 @@ double * GetVector(istream &fin, int n);
 double * Solve(double **A, double *B, int n);
 void Print(double *x, int n, ostream &fout);
 void Print(double **A, int n, ostream &fout);
+double *Copy(double *v, int n);
+double ** Copy(double **A, int n);
+bool Correct(double ** A, double *x, double *B, int n);
 
 // реализация функций matrix.cpp
 
@@ -48,6 +51,13 @@ void Substraction(double *v1, double *v2, int k, int n){
     }
 }
 
+double Dot(double *v1, double *v2, int k, int n){
+    double res = 0.0;
+    for(int i=k; i<n; i++){
+        res += v1[i] * v2[i];
+    }
+}
+
 double * Solve(double **A, double *B, int n){
     for(int i=0; i<n; i++){
         B[i] /= A[i][i];
@@ -57,9 +67,11 @@ double * Solve(double **A, double *B, int n){
             Substraction(A[j], A[i], i, n);
         }
     }
-    Print(A, n, cout);
-    Print(B, n, cout);
-    return nullptr;
+    double * x = new double [n];
+    for(int i=n-1; i>-1; i--){
+        x[i] = B[i] - Dot(x, A[i], i+1, n);
+    }
+    return x;
 }
 void Print(double *v, int n, ostream &fout){ 
     if (!v) return;   
@@ -74,4 +86,43 @@ void Print(double **A, int n, ostream &fout){
         Print(A[j], n, fout);
     }
     fout << endl;
+}
+
+double *Copy(double *v, int n){
+    double *res = new double[n];
+    for(int i=0; i<n; i++){
+        res[i] = v[i];
+    }
+    return res;
+}
+double ** Copy(double **A, int n){
+    double ** res = new double*[n];
+    for(int i=0; i<n; i++){
+        res[i] = Copy(A[i], n);
+    }
+    return res;
+}
+bool Correct(double ** A, double *x, double *B, int n){
+    double eps = 1.0e-10;
+    for(int i=0; i<n; i++){
+        if (abs(Dot(A[i], x, 0, n) - B[i])>eps){
+            return false;
+        }
+    }
+    return true;
+}
+
+double * SolveIterations(double **A, double *B, int n){
+    double *x = new double[n];
+    for(int i=0; i<n; i++) x[i] = 0;
+    double * x1 = new double[n];
+    for(int k=0; k<100; k++){
+        for(int i=0; i<n; i++){
+            x1[i] = (B[i] - Dot(A[i], x, 0, n))/A[i][i] +x[i]; 
+        }
+        double *temp = x;
+        x = x1; x1 = temp;
+        Print(x1, n, cout);
+    }
+    return x1;
 }
