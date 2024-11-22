@@ -1,5 +1,5 @@
 
-#include <iostream>
+#include <fstream>
 #include <ctime>
 #include <cstdlib>
 using namespace std;
@@ -9,20 +9,25 @@ typedef void (*SortMethod)(Type *, int); // вводим функциональ�
 void BubbleSort(Type* A, int n);
 void QuickSort(Type* A, int n);
 void PrintTime(const char * name, SortMethod sort);
-int Part(Type *A, int L, int R);
+void Part(Type *A, int L, int R, int &i, int &j);
 void Print(Type* A, int n);
 Type* Create(int n);
 
+ofstream fout("output.txt");
+ofstream &cout = fout;
 int main(){
+    
     //srand(time(NULL));
-    //int A[10]{7,4,3,8,2,1,0,5,6,9};
-    int * A = Create(100);
+    const int n = 10;
+    //int A[n] = {7,4,3,8,2,1,0,5,6,9};
+    int * A = Create(n);
     //cout << Part(A, 0, 5) << endl;
-    QuickSort(A, 100);
-    Print(A, 100);
+    Print(A, n);
+    QuickSort(A, n);
+    Print(A, n);
 
-    PrintTime("BubbleSort", BubbleSort);
-    PrintTime("QuickSort", QuickSort);
+   // PrintTime("BubbleSort", BubbleSort);
+   // PrintTime("QuickSort", QuickSort);
 }
 
 Type* Create(int n){
@@ -60,24 +65,27 @@ void PrintTime(const char * name, SortMethod sort){
     cout << "Time " << name <<": " << clock() - t1 << endl;
 }
 
-int Part(Type *A, int L, int R){
+void Part(Type *A, int L, int R, int &i, int &j){
     Type x = A[(L + R) / 2]; // опорный элемент
-    int i = L, j = R;
-    while(i < j){
+    i = L; j = R;
+    while(i <= j){
         for(;i <=R && A[i] < x; i++);
         for(; j >= L && A[j] > x; j--);
-        Type temp = A[i];
-        A[i] = A[j];
-        A[j] = temp;                 
-    }
-    return i;
+        if (i <= j){
+            Type temp = A[i];
+            A[i] = A[j];
+            A[j] = temp;    
+            i++; j--;        
+        }                 
+    }    
 }
 
 void QuickSort(Type *A, int L, int R){
-    if (R - L < 2) return;
-    int k = Part(A, L, R);
-    QuickSort(A, L, k);
-    QuickSort(A, k + 1, R);
+    if (R - L < 1) return;
+    int i, j;
+    Part(A, L, R, i, j);
+     QuickSort(A, L, j);
+    QuickSort(A, i, R);
 }
 
 void QuickSort(Type *A, int n){
